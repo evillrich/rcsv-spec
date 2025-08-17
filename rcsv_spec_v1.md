@@ -132,7 +132,7 @@ Feb,18000,27000,=B3+C3
 ## Comment Hierarchy
 
 - `#` - Major structural elements (sheets, document metadata)
-- `##` - Sheet-level metadata (charts, column formatting, etc.)
+- `##` - Sheet-level metadata (charts, tables, column formatting, etc.)
 
 ## Data Types
 
@@ -381,6 +381,70 @@ Mar,1500,1400
 - `series` - Series names for legend (optional, defaults to column names)
 - `values` - Values column for pie charts
 - `labels` - Labels column for pie charts
+- `position` - Layout positioning: `bottom` (default) or `right`
+
+## Layout and Positioning
+
+### Block Positioning
+
+RCSV content is organized into blocks (data tables and charts) that are positioned sequentially. By default, all blocks render vertically (top to bottom). Optional positioning metadata allows horizontal layouts.
+
+### Default Behavior
+
+All blocks render below the previous block in source order:
+
+```csv
+Month,Sales
+Jan,1000
+Feb,1200
+
+## Chart: type=bar, title="Sales Performance"
+## Chart: type=line, title="Sales Trend"
+# Result: Table → Chart → Chart (all vertically stacked)
+```
+
+### Horizontal Positioning
+
+Use `position=right` to render a block to the right of the previous block:
+
+```csv
+Month,Sales,Target
+Jan,1000,950
+Feb,1200,1100
+
+## Chart: type=bar, title="Performance", position=right
+## Chart: type=line, title="Trend"
+# Result: Table → Chart (to the right) → Chart (below the table/chart pair)
+```
+
+### Table Positioning
+
+Tables can also be positioned using `## Table:` metadata:
+
+```csv
+## Chart: type=pie, title="Sales Distribution"
+
+## Table: position=right
+Month,Sales,Target
+Jan,1000,950
+Feb,1200,1100
+
+## Chart: type=line, title="Monthly Trend"
+# Result: Chart → Table (to the right) → Chart (below)
+```
+
+### Position Properties
+
+- `position=bottom` - Render below the previous block (default, usually omitted)
+- `position=right` - Render to the right of the previous block
+
+### Responsive Behavior
+
+Renderers MAY override positioning based on display constraints:
+
+- Mobile devices may force `position=bottom` for all blocks
+- Narrow displays may fall back to vertical stacking
+- Print layouts may optimize for page breaks
 
 ## Comments and Metadata
 
@@ -738,7 +802,7 @@ These features conflict with our design principles of being lightweight, perform
 
 ```csv
 # Title: Monthly Budget
-## Chart: type=bar, title="Budget vs Actual", x=Category, y=Budgeted,Actual
+## Chart: type=pie, title="Budget Distribution", values=Budgeted, labels=Category, position=right
 
 Category:text,Budgeted:currency,Actual:currency,Difference:currency,Status:text
 Housing,2000,1950,=C2-B2,"=IF(D2<0,""Over"",""Under"")"
