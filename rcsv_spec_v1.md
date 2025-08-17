@@ -144,9 +144,33 @@ Widget A,2.50,2024-01-15,TRUE,0.85
 Widget B,1.75,2024-02-01,FALSE,0.92
 ```
 
-### Type Inference Rules
+### Type Inference Algorithm
 
-When data types are not explicitly specified, the parser applies these rules in order:
+RCSV uses a sophisticated two-phase type inference algorithm that mirrors the approach used by Excel and Google Sheets to handle columns containing both values and formulas.
+
+#### Phase 1: Pre-Calculation Inference
+
+When data types are not explicitly specified, the parser first analyzes non-formula cells:
+
+1. **Sample Analysis**: Examine the first N cells in each column (configurable, default 100)
+2. **Cell Classification**: Separate cells into values vs formulas (cells starting with `=`)
+3. **Threshold Check**: Calculate the percentage of non-formula cells in the sample
+4. **Type Decision**:
+   - If ≥70% are non-formula cells AND they have a consistent type → Apply that type to the column
+   - If ≥70% are non-formula cells BUT they have mixed types → Apply TEXT type to the column  
+   - If <70% are non-formula cells → Mark column as UNSPECIFIED (defer to Phase 2)
+
+#### Phase 2: Post-Calculation Inference
+
+For columns marked as UNSPECIFIED in Phase 1:
+
+1. **Formula Calculation**: Calculate all formulas to produce actual values
+2. **Value Analysis**: Apply the same type inference rules to the calculated results
+3. **Final Type Assignment**: Assign the inferred type or default to TEXT if still ambiguous
+
+#### Type Detection Rules
+
+Both phases apply these rules in priority order when analyzing cell values:
 
 1. **Boolean**: `TRUE`, `FALSE` (case insensitive) → `boolean`
 2. **Date**: ISO format `YYYY-MM-DD` or common formats `MM/DD/YYYY`, `DD/MM/YYYY` → `date`
@@ -154,6 +178,14 @@ When data types are not explicitly specified, the parser applies these rules in 
 4. **Percentage**: Values ending with `%` → `percentage`
 5. **Number**: Numeric values (integers, decimals) → `number`
 6. **Text**: Everything else → `text` (default)
+
+#### Excel/Google Sheets Compatibility
+
+This two-phase approach replicates the type inference behavior of Excel and Google Sheets:
+- Both platforms initially defer type decisions for formula-heavy columns
+- Both perform post-calculation analysis to determine appropriate formatting
+- Both apply column-level type assignments that affect all cells in the column
+- This ensures predictable round-trip compatibility when importing/exporting between platforms
 
 ### Supported Data Types
 
@@ -591,11 +623,11 @@ Use single quotes with doubling for escapes (Excel/Sheets compatible):
 
 ### 100% Round-Trip Support
 
-RCSV is designed for perfect bidirectional compatibility with Excel and Google Sheets:
+RCSV is designed for nearly perfect bidirectional compatibility with Excel and Google Sheets:
 
 **Guaranteed Round-Trip:**
 
-- All basic data types (text, number, currency, percentage, date, boolean, category)
+- All basic data types (text, number, currency, percentage, date, boolean)
 - All supported formulas and functions
 - Basic column formatting (alignment, colors, bold, italic)
 - Sheet structure and organization
@@ -753,7 +785,7 @@ Total,"=SUM(B2:B3)","=SUM(C2:C3)","=SUM(D2:D3)"
 **All POC features plus:**
 
 - Multi-sheet support with cross-references
-- All basic data types: `text`, `number`, `currency`, `percentage`, `date`, `boolean`, `category`
+- All basic data types: `text`, `number`, `currency`, `percentage`, `date`, `boolean`
 - Essential functions: Mathematical, logical, basic lookup, text, date
 - All chart types: `bar`, `column`, `line`, `pie`, `scatter`
 - Basic formatting: colors, bold, italic, alignment
@@ -852,7 +884,7 @@ Total,"=SUM(B2:B4)","=SUM(C2:C4)","=SUM(D2:D4)",
 
 ```csv
 # Sheet: Sales Data
-Region:category,Q1:currency,Q2:currency,Q3:currency,Q4:currency,Total:currency
+Region:text,Q1:currency,Q2:currency,Q3:currency,Q4:currency,Total:currency
 North,100000,120000,115000,140000,"=SUM(B2:E2)"
 South,85000,95000,105000,125000,"=SUM(B3:E3)"
 West,90000,110000,125000,135000,"=SUM(B4:E4)"
@@ -876,7 +908,7 @@ John Doe,john@company.com,Engineering
 Jane Smith,jane@company.com,Marketing
 
 # Enhanced with RCSV features (still CSV compatible!)
-Name:text,Email:text,Department:category,Active:boolean
+Name:text,Email:text,Department:text,Active:boolean
 John Doe,john@company.com,Engineering,TRUE
 Jane Smith,jane@company.com,Marketing,TRUE
 ```
