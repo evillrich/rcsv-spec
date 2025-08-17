@@ -167,6 +167,24 @@ A,10,2,=B2*C2
 B,15,3,=B3*C3
 ```
 
+### Formula Quoting Requirements
+
+**Important**: Formulas containing commas must be quoted to prevent CSV parsing issues.
+
+```csv
+# Simple formulas (no commas) - quotes optional
+A:number,B:number,Result:number
+10,20,=A1+B1
+5,15,=A2*B2
+
+# Complex formulas (with commas) - quotes required
+A:number,B:number,C:number,Total:number
+10,20,30,"=SUM(A1,B1,C1)"
+5,15,25,"=AVERAGE(A2:B2)"
+```
+
+**Rule of thumb**: If your formula contains commas, quote it: `"=FUNCTION(arg1,arg2)"`
+
 ### Functions
 
 ```csv
@@ -188,7 +206,7 @@ B,75000
 
 # Sheet: Summary
 Total Revenue,=SUM(Data!B:B)
-Best Product,=INDEX(Data!A:A,MATCH(MAX(Data!B:B),Data!B:B,0))
+Best Product,"=INDEX(Data!A:A,MATCH(MAX(Data!B:B),Data!B:B,0))"
 ```
 
 ### Sheet Name Handling
@@ -611,7 +629,7 @@ Implementations MAY support larger datasets but should clearly document performa
 Category:text,Budget:currency,Actual:currency,Total:currency
 Housing,2000,1950,=B2+C2
 Food,800,850,=B3+C3
-Total,=SUM(B2:B3),=SUM(C2:C3),=SUM(D2:D3)
+Total,"=SUM(B2:B3)","=SUM(C2:C3)","=SUM(D2:D3)"
 ```
 
 ### MVP Scope (Public Release v1.0)
@@ -708,10 +726,10 @@ These features conflict with our design principles of being lightweight, perform
 ## Chart: type=bar, title="Budget vs Actual", x=Category, y=Budgeted,Actual
 
 Category:text,Budgeted:currency,Actual:currency,Difference:currency,Status:text
-Housing,2000,1950,=C2-B2,=IF(D2<0,"Over","Under")
-Food,800,750,=C3-B3,=IF(D3<0,"Over","Under")
-Transport,400,450,=C4-B4,=IF(D4<0,"Over","Under")
-Total,=SUM(B2:B4),=SUM(C2:C4),=SUM(D2:D4),
+Housing,2000,1950,=C2-B2,"=IF(D2<0,""Over"",""Under"")"
+Food,800,750,=C3-B3,"=IF(D3<0,""Over"",""Under"")"
+Transport,400,450,=C4-B4,"=IF(D4<0,""Over"",""Under"")"
+Total,"=SUM(B2:B4)","=SUM(C2:C4)","=SUM(D2:D4)",
 ```
 
 ### Sales Analysis
@@ -719,18 +737,18 @@ Total,=SUM(B2:B4),=SUM(C2:C4),=SUM(D2:D4),
 ```csv
 # Sheet: Sales Data
 Region:category,Q1:currency,Q2:currency,Q3:currency,Q4:currency,Total:currency
-North,100000,120000,115000,140000,=SUM(B2:E2)
-South,85000,95000,105000,125000,=SUM(B3:E3)
-West,90000,110000,125000,135000,=SUM(B4:E4)
-Total,=SUM(B2:B4),=SUM(C2:C4),=SUM(D2:D4),=SUM(E2:E4),=SUM(F2:F4)
+North,100000,120000,115000,140000,"=SUM(B2:E2)"
+South,85000,95000,105000,125000,"=SUM(B3:E3)"
+West,90000,110000,125000,135000,"=SUM(B4:E4)"
+Total,"=SUM(B2:B4)","=SUM(C2:C4)","=SUM(D2:D4)","=SUM(E2:E4)","=SUM(F2:F4)"
 
 # Sheet: Analysis  
 ## Chart: type=line, title="Quarterly Growth", x=Quarter, y=Total
 Quarter:text,Total:currency,Growth:percentage
-Q1,=SUM('Sales Data'!B2:B4),
-Q2,=SUM('Sales Data'!C2:C4),=(B3-B2)/B2
-Q3,=SUM('Sales Data'!D2:D4),=(B4-B3)/B3
-Q4,=SUM('Sales Data'!E2:E4),=(B5-B4)/B4
+Q1,"=SUM('Sales Data'!B2:B4)",
+Q2,"=SUM('Sales Data'!C2:C4)",=(B3-B2)/B2
+Q3,"=SUM('Sales Data'!D2:D4)",=(B4-B3)/B3
+Q4,"=SUM('Sales Data'!E2:E4)",=(B5-B4)/B4
 ```
 
 ### Simple CSV Migration

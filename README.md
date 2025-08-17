@@ -32,7 +32,7 @@ Category,Budget,Actual,Variance
 Marketing,$50000,$45000,=C2-B2
 Engineering,$200000,$195000,=C3-B3
 Sales,$75000,$80000,=C4-B4
-Total,=SUM(B2:B4),=SUM(C2:C4),=C5-B5
+Total,"=SUM(B2:B4)","=SUM(C2:C4)",=C5-B5
 ```
 
 ## Use Cases
