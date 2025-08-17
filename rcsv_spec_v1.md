@@ -19,7 +19,7 @@ Rich CSV (RCSV) is a lightweight, text-based format that extends standard CSV to
 
 ## Design Principles
 
-- **CSV Compatible**: Every CSV file with headers is a valid RCSV file
+- **CSV Compatible**: Every CSV file is a valid RCSV file (headers optional)
 - **Excel/Sheets Compatible**: Full round-trip compatibility with Excel and Google Sheets
 - **Embeddable everywhere**: Like Markdown, designed for universal embedding
 - **Markdown-like speed**: Fast parsing and rendering
@@ -28,6 +28,74 @@ Rich CSV (RCSV) is a lightweight, text-based format that extends standard CSV to
 - **Lightweight**: Minimal syntax overhead
 - **AI friendly**: Easy for language models to generate and modify
 - **Good enough**: Handles typical business scenarios without replacing Excel/Sheets
+
+## Progressive Enhancement from CSV
+
+RCSV follows a progressive enhancement model that allows users to start with basic CSV and gradually add features as needed. This ensures maximum compatibility while providing a clear learning path.
+
+### Level 1: Plain CSV
+```csv
+John,25,Engineer
+Jane,30,Designer
+```
+Pure data transfer. Works everywhere. No headers required - RCSV supports headerless CSV with limited functionality.
+
+### Level 1a: Add Formulas (No Headers)
+```csv
+John,25,75000
+Jane,30,80000
+Total,=SUM(B1:B2),=SUM(C1:C2)
+```
+Cell references unlock calculations. Still very simple. Formulas work without column headers using standard cell references (A1, B2, etc.).
+
+### Level 2: Add Headers
+```csv
+Name,Age,Salary
+John,25,75000
+Jane,30,80000
+Average,=AVERAGE(B2:B3),=AVERAGE(C2:C3)
+```
+Column names enable charts and better readability. Headers unlock advanced features and make formulas more maintainable.
+
+### Level 3: Add Types & Formatting
+```csv
+Name:text,Age:number,Salary:currency
+John,25,75000
+Jane,30,80000
+Average,=AVERAGE(B2:B3),=AVERAGE(C2:C3)
+```
+Type annotations enable proper formatting, validation, and Excel/Sheets compatibility. Data displays correctly with currency symbols, number formatting, etc.
+
+### Level 4: Add Named References
+```csv
+Name:text,Age:number,Salary:currency
+John,25,75000
+Jane,30,80000
+Average,=AVERAGE(Age),=AVERAGE(Salary)
+```
+Column name references make formulas self-documenting and more maintainable. Formulas automatically adjust when columns are reordered.
+
+### Level 5: Full Power
+```csv
+# Title: Team Overview
+## Chart: type=bar, title="Team Salary Overview", x=Name, y=Salary
+
+Name:text,Age:number,Salary:currency
+John,25,75000
+Jane,30,80000
+Average,=AVERAGE(Age),=AVERAGE(Salary)
+```
+Metadata, charts, and full RCSV features unlock rich data visualization and documentation capabilities.
+
+### Migration Strategy
+
+This progressive enhancement means:
+
+- **Start simple**: Any CSV works, even without headers
+- **Add incrementally**: Enhance features only when needed
+- **Universal compatibility**: Each level still works in simpler contexts
+- **Learning curve**: Users only learn new syntax when they need new features
+- **Tool flexibility**: Parsers can support any subset of features
 
 ## Use Cases & Embedding
 
