@@ -19,7 +19,7 @@ Rich CSV (RCSV) is a lightweight, text-based format that extends standard CSV to
 
 ## Design Principles
 
-- **CSV Compatible**: Every CSV file is a valid RCSV file
+- **CSV Compatible**: Every CSV file with headers is a valid RCSV file
 - **Excel/Sheets Compatible**: Full round-trip compatibility with Excel and Google Sheets
 - **Embeddable everywhere**: Like Markdown, designed for universal embedding
 - **Markdown-like speed**: Fast parsing and rendering
@@ -114,6 +114,20 @@ Month,Marketing,Operations,Total
 Jan,15000,25000,=B2+C2
 Feb,18000,27000,=B3+C3
 ```
+
+### Sheet Structure Requirements
+
+**One Table Per Sheet**: Each sheet contains exactly one tabular dataset. This ensures:
+- Clear data organization and boundaries
+- Predictable parsing and referencing
+- Consistent cross-sheet formula behavior
+- Simple chart data binding
+
+**Header Row Required**: All tabular data must include a header row defining column names:
+- The first data row (any row not starting with `#` or `##`) is treated as headers
+- Data can appear after any number of comments and metadata declarations
+- Column references and formulas depend on consistent header structure
+- Type inference and formatting apply to header-defined columns
 
 ## Comment Hierarchy
 
@@ -499,16 +513,17 @@ RCSV is designed for perfect bidirectional compatibility with Excel and Google S
 
 ### One-Way Compatibility
 
-- **CSV → RCSV**: Every CSV file is a valid RCSV file
+- **CSV → RCSV**: Every CSV file with headers is a valid RCSV file
 - **RCSV → CSV**: Only basic RCSV files (without metadata/comments) are valid CSV
 - RCSV files with `#` comments or `##` metadata are not valid CSV
+- **Header Requirement**: RCSV assumes the first data row contains column headers, as is standard practice in business CSV files
 
 ### Forward Compatibility (CSV to RCSV)
 
-- Standard CSV files can be opened directly as RCSV
-- No syntax changes needed
-- Full feature compatibility
-- Zero migration cost
+- Standard CSV files with headers can be opened directly as RCSV
+- No syntax changes needed for header-based CSV files
+- Full feature compatibility with business-standard CSV format
+- Zero migration cost for typical business CSV files
 
 ### Backward Compatibility (RCSV to CSV)
 
@@ -787,7 +802,7 @@ Jane Smith,jane@company.com,Marketing,TRUE
 
 - Familiar CSV syntax with low learning curve
 - Business-focused features out of the box
-- **Forward compatible with existing CSV files** (CSV files can be opened as RCSV)
+- **Forward compatible with standard business CSV files** (CSV files with headers can be opened as RCSV)
 - Purpose-built for tabular data
 
 ### The Markdown Parallel
