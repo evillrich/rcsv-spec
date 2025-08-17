@@ -269,6 +269,171 @@ This two-phase approach replicates the type inference behavior of Excel and Goog
   - Syntax: `Status:category(Active,Inactive,Pending)`
   - Validation: Invalid values treated as text with warning
 
+## Type Coercion and Data Handling
+
+RCSV follows a type system similar to Excel and Google Sheets, with automatic coercion during operations and clear error handling for incompatible conversions.
+
+### Data Storage Model
+
+RCSV stores data using native types from CSV parsing:
+
+- **Numbers**: Stored as native numeric values (`123`, `45.67`)
+- **Strings**: Stored as text values (`"hello"`, `"123abc"`)
+- **Booleans**: Stored as native boolean values (`true`, `false`)
+- **Empty cells**: CSV empty cells (`",,,"`) become `null` values
+- **Empty strings**: Explicit empty strings (`""`) from formulas remain as strings
+
+### CSV Empty Cell Handling
+
+**Critical distinction**: RCSV differentiates between truly empty cells and empty strings:
+
+```csv
+# CSV input: Item,,Price → Results in: ["Item", null, "Price"]
+# Formula result: ="" → Results in: ""
+```
+
+- **Empty CSV cells** (`,,,`): Become `null` values, not counted by COUNTA
+- **Empty string results** (`""`): From formulas, counted by COUNTA
+- **This matches Excel/Google Sheets behavior** for empty cell vs empty string handling
+
+### Automatic Type Coercion Rules
+
+#### Math Operations (`+`, `-`, `*`, `/`, `^`)
+
+RCSV performs automatic coercion to enable mathematical operations:
+
+```csv
+Value:text,Number:number,Result:number
+"123",10,="123"+10    # Result: 133 (string coerced to number)
+"45.5",5,="45.5"*5    # Result: 227.5 (string coerced to number)
+"abc",10,="abc"+10    # Result: #VALUE! (cannot coerce)
+"",5,=""+5            # Result: 5 (empty string coerced to 0)
+```
+
+**Coercion order for math operations**:
+1. **Numbers**: Pass through unchanged
+2. **Strings**: Attempt `parseFloat()` conversion
+   - Pure numeric strings (`"123"`, `"45.67"`) → Convert to number
+   - Non-numeric strings (`"abc"`, `"123abc"`) → `#VALUE!` error
+   - Empty strings (`""`) → Convert to 0
+3. **Booleans**: `true` → 1, `false` → 0
+4. **Null**: Convert to 0
+
+#### String Operations (`&` concatenation)
+
+All values are coerced to strings for concatenation:
+
+```csv
+A:number,B:text,Result:text
+123,"abc",=A2&B2     # Result: "123abc"
+true,"test",=A3&B3   # Result: "truetest"
+```
+
+#### Comparison Operations
+
+Type-aware comparisons with coercion:
+
+```csv
+A:text,B:number,Equal:boolean
+"123",123,=A2=B2     # Result: TRUE (string coerced for comparison)
+"abc",123,=A3=B3     # Result: FALSE (different types, no coercion)
+```
+
+### Function-Specific Behavior
+
+#### COUNTA vs COUNT
+
+**COUNTA** (Count All): Counts all non-empty values regardless of type
+- Counts: numbers, strings (including `""`), booleans, dates
+- Does NOT count: `null` values (empty CSV cells)
+
+**COUNT**: Counts only numeric values
+- Counts: numbers, numeric strings that can be coerced
+- Does NOT count: text strings, booleans, `null`, empty strings
+
+```csv
+A:text,B:number,C:text,Count:number,CountA:number
+"Hello",10,"",=COUNT(A2:C2),=COUNTA(A2:C2)
+# COUNT: 1 (only the number 10)
+# COUNTA: 2 ("Hello" and "", but not null)
+```
+
+#### Mathematical Functions
+
+All mathematical functions (`SUM`, `AVERAGE`, `MIN`, `MAX`) attempt coercion:
+
+```csv
+Values:text,Sum:number
+"10",=SUM(A2:A4)
+"20.5",
+"abc"        # This row will cause SUM to return #VALUE!
+```
+
+### Error Handling and Display
+
+#### Error Types
+
+- **`#VALUE!`**: Type coercion failure (e.g., `"abc" + 10`)
+- **`#DIV/0!`**: Division by zero
+- **`#REF!`**: Invalid cell reference
+- **`#NAME?`**: Unknown function name
+- **`#CIRCULAR!`**: Circular reference detected
+
+#### Renderer Display Standards
+
+**Error cells should be displayed as**:
+- Background color: Light red (`#ffebee`)
+- Text color: Dark red (`#c62828`)
+- Font style: Normal (not bold/italic)
+- Content: Show error code (e.g., `#VALUE!`)
+- Tooltip/hover: Show detailed error message
+
+#### Error Propagation
+
+Errors bubble up through formula chains:
+
+```csv
+A:text,B:number,C:number,D:number
+"abc",10,=A2+B2,=C2*2
+# C2: #VALUE! (cannot convert "abc")
+# D2: #VALUE! (error propagates from C2)
+```
+
+### Excel and Google Sheets Compatibility
+
+RCSV type coercion **exactly matches** Excel and Google Sheets behavior:
+
+- **Automatic coercion**: `"123" + 10 = 133`
+- **Coercion failures**: `"abc" + 10 = #VALUE!`
+- **Empty cell handling**: `null + 10 = 10`
+- **Function behavior**: COUNTA counts all non-null values
+- **Error propagation**: Errors bubble through formula dependencies
+
+### Performance Considerations
+
+**Current Implementation**: Test coercion on each operation
+**Future Optimization**: Cache coercion metadata per cell
+- `canCoerceToNumber: boolean`
+- `numericValue?: number` (pre-computed)
+- Cache invalidated when cell value changes
+
+### Type Coercion Examples
+
+```csv
+# Mixed data types with automatic coercion
+Value:text,Number:number,Math:number,Concat:text,Valid:boolean
+"123",10,="123"+10,"Item: "&10,=ISNUMBER("123")
+"45.67",5,="45.67"*5,"Price: "&45.67,=ISNUMBER("45.67")
+"abc",15,="abc"+15,"Name: "&15,=ISNUMBER("abc")
+"",20,=""+20,"Empty: "&20,=ISNUMBER("")
+
+# Results:
+# Row 2: 133, "Item: 10", TRUE
+# Row 3: 228.35, "Price: 45.67", TRUE  
+# Row 4: #VALUE!, "Name: 15", FALSE
+# Row 5: 20, "Empty: 20", FALSE
+```
+
 ## Formulas
 
 Formulas use Excel-compatible syntax and begin with `=`:
