@@ -15,19 +15,20 @@ RCSV fills this gap by bringing essential spreadsheet features to a simple text 
 
 ## Key Features
 
-- **CSV Compatible**: Every CSV file is a valid RCSV file
+- **CSV Compatible**: Every CSV file with headers is a valid RCSV file
 - **Excel/Sheets Compatible**: Full round-trip compatibility with Excel and Google Sheets
 - **Formulas**: Support for calculations with Excel-compatible syntax
 - **Multi-sheet**: Organize data across multiple sheets in a single file
 - **Formatting**: Type hints, currency, percentages, and display formatting
 - **Charts**: Simple charting directives for common visualizations
+- **Layout & Positioning**: Horizontal and vertical positioning of tables and charts
 - **Human Readable**: Plain text format suitable for version control
 - **AI Friendly**: Easy for language models to generate and modify
 
 ## Quick Example
 
 ```rcsv
-## Chart: type=bar, title="Q4 Budget"
+## Chart: type=pie, title="Budget Distribution", values=Budget, labels=Category, position=right
 Category,Budget,Actual,Variance
 Marketing,$50000,$45000,=C2-B2
 Engineering,$200000,$195000,=C3-B3
@@ -52,11 +53,14 @@ The full specification is available in [rcsv_spec_v1.md](rcsv_spec_v1.md).
 ### Core Components
 
 1. **Basic Data**: Standard CSV format with values and formulas
-2. **Type System**: Column type hints (text, number, currency, percentage, date, boolean)
-3. **Formulas**: Excel-compatible formula syntax with `=` prefix
-4. **Multi-sheet**: Sheet separation with `## Sheet: name` directives
-5. **Charts**: Inline chart definitions with `## Chart:` directives
-6. **Formatting**: Display hints using `:type` suffix on headers
+2. **Header Requirements**: All tables must include header rows (first data row defines columns)
+3. **Sheet Structure**: One table per sheet for clear organization and referencing
+4. **Type System**: Column type hints (text, number, currency, percentage, date, boolean)
+5. **Formulas**: Excel-compatible formula syntax with `=` prefix
+6. **Multi-sheet**: Sheet separation with `## Sheet: name` directives
+7. **Charts**: Inline chart definitions with `## Chart:` directives
+8. **Layout & Positioning**: Block positioning with `position=right` for horizontal layouts
+9. **Formatting**: Display hints using `:type` suffix on headers
 
 ## File Format
 
