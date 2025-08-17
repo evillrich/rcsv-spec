@@ -490,6 +490,43 @@ Engineering,200000,195000
 
 ## Escaping Rules
 
+### Metadata Escaping
+
+RCSV metadata in comments (chart definitions, column formatting) uses quote-based escaping similar to CSV:
+
+**Simple values:**
+```csv
+## Chart: type=bar, x=Month, y=Sales
+```
+
+**Values with special characters (commas, equals):**
+```csv
+## Chart: type=bar, title="Q4 Report, Final", x=Month
+```
+
+**Multiple values (comma-separated lists):**
+```csv
+## Chart: type=line, x=Month, y=Revenue,Expenses,Profit
+```
+
+**Mixed quoted and unquoted lists:**
+```csv
+## Chart: type=line, x=Month, y="Revenue, After Tax",Expenses,"Profit, Net"
+```
+
+**Escaping quotes within quoted values:**
+```csv
+## Chart: title="Sales Report \"2024\"", x=Month
+## Chart: title='John\'s Report', x=Month
+```
+
+**Rules:**
+1. Values containing commas or equals signs must be quoted
+2. Lists are comma-separated, with individual items optionally quoted
+3. Use backslash to escape quotes within quoted strings
+4. Parser splits on commas outside of quotes
+5. Quotes are removed from individual values after parsing
+
 ### CSV Compatibility
 
 RCSV follows standard CSV escaping rules to maintain compatibility:
