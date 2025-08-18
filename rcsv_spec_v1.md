@@ -72,7 +72,7 @@ Jane,30,80000
 Average,=AVERAGE(B2:B3),=AVERAGE(C2:C3)
 ```
 
-Type annotations and formatting properties enable proper data display, validation, and Excel/Sheets compatibility. Data displays correctly with currency symbols, number formatting, colors, alignment, and typography.
+Type annotations and formatting properties enable proper data display, validation, and styling. Data displays correctly with currency symbols, number formatting, colors, alignment, and typography.
 
 ### Level 5: Full Power
 
@@ -300,6 +300,24 @@ RCSV stores data using native types from CSV parsing:
 - **Empty CSV cells** (`,,,`): Become `null` values, not counted by COUNTA
 - **Empty string results** (`""`): From formulas, counted by COUNTA
 - **This matches Excel/Google Sheets behavior** for empty cell vs empty string handling
+
+### Null Value Handling
+
+RCSV treats both empty strings and missing values in CSV data as null values:
+
+```csv
+# These examples produce identical results:
+one,"",three    # Quoted empty string
+one,,three      # Missing value between commas
+```
+
+Both cases result in the middle cell being stored as a `null` value. This ensures consistent behavior regardless of how empty data is represented in the source CSV file.
+
+**Key behaviors:**
+- Empty strings (`""`) and missing values (`,`) are both converted to `null` during parsing
+- `null` values are not counted by COUNTA function
+- `null` values are treated as 0 in mathematical operations
+- This approach maintains compatibility with Excel and Google Sheets empty cell handling
 
 ### Automatic Type Coercion Rules
 
