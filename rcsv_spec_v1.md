@@ -34,48 +34,48 @@ Rich CSV (RCSV) is a lightweight, text-based format that extends standard CSV to
 RCSV follows a progressive enhancement model that allows users to start with basic CSV and gradually add features as needed. This ensures maximum compatibility while providing a clear learning path.
 
 ### Level 1: Plain CSV
+
 ```csv
 John,25,Engineer
 Jane,30,Designer
 ```
+
 Pure data transfer. Works everywhere. No headers required - RCSV supports headerless CSV with limited functionality.
 
-### Level 1a: Add Formulas (No Headers)
+### Level 2: Add Formulas (No Headers)
+
 ```csv
 John,25,75000
 Jane,30,80000
 Total,=SUM(B1:B2),=SUM(C1:C2)
 ```
+
 Cell references unlock calculations. Still very simple. Formulas work without column headers using standard cell references (A1, B2, etc.).
 
-### Level 2: Add Headers
+### Level 3: Add Headers
+
 ```csv
 Name,Age,Salary
 John,25,75000
 Jane,30,80000
 Average,=AVERAGE(B2:B3),=AVERAGE(C2:C3)
 ```
-Column names enable charts and better readability. Headers unlock advanced features and make formulas more maintainable.
 
-### Level 3: Add Types & Formatting
+Column names enable charts and better readability. Headers unlock advanced features and provide context for data interpretation.
+
+### Level 4: Add Types & Formatting
+
 ```csv
-Name:text,Age:number,Salary:currency
+Name:text:text-left:bold,Age:number:text-center,Salary:currency:text-right:text-green
 John,25,75000
 Jane,30,80000
 Average,=AVERAGE(B2:B3),=AVERAGE(C2:C3)
 ```
-Type annotations enable proper formatting, validation, and Excel/Sheets compatibility. Data displays correctly with currency symbols, number formatting, etc.
 
-### Level 4: Add Named References
-```csv
-Name:text,Age:number,Salary:currency
-John,25,75000
-Jane,30,80000
-Average,=AVERAGE(Age),=AVERAGE(Salary)
-```
-Column name references make formulas self-documenting and more maintainable. Formulas automatically adjust when columns are reordered.
+Type annotations and formatting properties enable proper data display, validation, and Excel/Sheets compatibility. Data displays correctly with currency symbols, number formatting, colors, alignment, and typography.
 
 ### Level 5: Full Power
+
 ```csv
 # Title: Team Overview
 ## Chart: type=bar, title="Team Salary Overview", x=Name, y=Salary
@@ -83,8 +83,9 @@ Column name references make formulas self-documenting and more maintainable. For
 Name:text,Age:number,Salary:currency
 John,25,75000
 Jane,30,80000
-Average,=AVERAGE(Age),=AVERAGE(Salary)
+Average,=AVERAGE(B2:B3),=AVERAGE(C2:C3)
 ```
+
 Metadata, charts, and full RCSV features unlock rich data visualization and documentation capabilities.
 
 ### Migration Strategy
@@ -144,6 +145,7 @@ Engineering,200000,195000,=C3-B3
 ````
 
 **In chat conversations:**
+
 ```
 
 User: "Create a budget tracker for our team expenses"
@@ -186,12 +188,14 @@ Feb,18000,27000,=B3+C3
 ### Sheet Structure Requirements
 
 **One Table Per Sheet**: Each sheet contains exactly one tabular dataset. This ensures:
+
 - Clear data organization and boundaries
 - Predictable parsing and referencing
 - Consistent cross-sheet formula behavior
 - Simple chart data binding
 
 **Header Row Required**: All tabular data must include a header row defining column names:
+
 - The first data row (any row not starting with `#` or `##`) is treated as headers
 - Data can appear after any number of comments and metadata declarations
 - Column references and formulas depend on consistent header structure
@@ -225,7 +229,7 @@ When data types are not explicitly specified, the parser first analyzes non-form
 3. **Threshold Check**: Calculate the percentage of non-formula cells in the sample
 4. **Type Decision**:
    - If ≥70% are non-formula cells AND they have a consistent type → Apply that type to the column
-   - If ≥70% are non-formula cells BUT they have mixed types → Apply TEXT type to the column  
+   - If ≥70% are non-formula cells BUT they have mixed types → Apply TEXT type to the column
    - If <70% are non-formula cells → Mark column as UNSPECIFIED (defer to Phase 2)
 
 #### Phase 2: Post-Calculation Inference
@@ -250,6 +254,7 @@ Both phases apply these rules in priority order when analyzing cell values:
 #### Excel/Google Sheets Compatibility
 
 This two-phase approach replicates the type inference behavior of Excel and Google Sheets:
+
 - Both platforms initially defer type decisions for formula-heavy columns
 - Both perform post-calculation analysis to determine appropriate formatting
 - Both apply column-level type assignments that affect all cells in the column
@@ -311,6 +316,7 @@ Value:text,Number:number,Result:number
 ```
 
 **Coercion order for math operations**:
+
 1. **Numbers**: Pass through unchanged
 2. **Strings**: Attempt `parseFloat()` conversion
    - Pure numeric strings (`"123"`, `"45.67"`) → Convert to number
@@ -344,10 +350,12 @@ A:text,B:number,Equal:boolean
 #### COUNTA vs COUNT
 
 **COUNTA** (Count All): Counts all non-empty values regardless of type
+
 - Counts: numbers, strings (including `""`), booleans, dates
 - Does NOT count: `null` values (empty CSV cells)
 
 **COUNT**: Counts only numeric values
+
 - Counts: numbers, numeric strings that can be coerced
 - Does NOT count: text strings, booleans, `null`, empty strings
 
@@ -382,6 +390,7 @@ Values:text,Sum:number
 #### Renderer Display Standards
 
 **Error cells should be displayed as**:
+
 - Background color: Light red (`#ffebee`)
 - Text color: Dark red (`#c62828`)
 - Font style: Normal (not bold/italic)
@@ -413,6 +422,7 @@ RCSV type coercion **exactly matches** Excel and Google Sheets behavior:
 
 **Current Implementation**: Test coercion on each operation
 **Future Optimization**: Cache coercion metadata per cell
+
 - `canCoerceToNumber: boolean`
 - `numericValue?: number` (pre-computed)
 - Cache invalidated when cell value changes
@@ -592,17 +602,21 @@ Widget B,19.99,Pending
 RCSV uses CSS-style naming conventions for formatting properties, but these are predefined RCSV formatting options, not arbitrary CSS. Future versions may expand this list.
 
 **Text Alignment:**
+
 - `text-left`, `text-center`, `text-right`
 
 **Colors:**
+
 - `text-{color}` (text-red, text-green, text-blue, etc.)
 - `bg-{color}` (bg-red, bg-green, bg-blue, etc.)
 - `bg-{color}-{intensity}` (bg-yellow-100, bg-gray-200, etc.)
 
 **Typography:**
+
 - `bold`, `italic`, `underline`
 
 **Future Properties:**
+
 - `border`, `border-t`, `border-b`, etc. (planned for future versions)
 
 ### Column Formatting Examples
@@ -789,32 +803,38 @@ Engineering,200000,195000
 RCSV metadata in comments (chart definitions, column formatting) uses quote-based escaping similar to CSV:
 
 **Simple values:**
+
 ```csv
 ## Chart: type=bar, x=Month, y=Sales
 ```
 
 **Values with special characters (commas, equals):**
+
 ```csv
 ## Chart: type=bar, title="Q4 Report, Final", x=Month
 ```
 
 **Multiple values (comma-separated lists):**
+
 ```csv
 ## Chart: type=line, x=Month, y=Revenue,Expenses,Profit
 ```
 
 **Mixed quoted and unquoted lists:**
+
 ```csv
 ## Chart: type=line, x=Month, y="Revenue, After Tax",Expenses,"Profit, Net"
 ```
 
 **Escaping quotes within quoted values:**
+
 ```csv
 ## Chart: title="Sales Report \"2024\"", x=Month
 ## Chart: title='John\'s Report', x=Month
 ```
 
 **Rules:**
+
 1. Values containing commas or equals signs must be quoted
 2. Lists are comma-separated, with individual items optionally quoted
 3. Use backslash to escape quotes within quoted strings
@@ -1066,7 +1086,6 @@ Total,"=SUM(B2:B3)","=SUM(C2:C3)","=SUM(D2:D3)"
 - Data validation constraints and rules
 - Import/export tools for Excel/Sheets with full fidelity
 - Advanced chart options (styling, legends, axes customization)
-- Named ranges for easier formula references
 - Enhanced date/time functions
 - Text manipulation functions
 - Error handling improvements
