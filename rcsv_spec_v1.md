@@ -78,15 +78,25 @@ Type annotations and formatting properties enable proper data display, validatio
 
 ```csv
 # Title: Team Overview
+
+# Sheet: Employee Data
 ## Chart: type=bar, title="Team Salary Overview", x=Name, y=Salary
 
 Name:text,Age:number,Salary:currency
 John,25,75000
 Jane,30,80000
 Average,=AVERAGE(B2:B3),=AVERAGE(C2:C3)
+
+# Sheet: Summary
+## Chart: type=pie, title="Department Distribution", values=Count, labels=Department
+
+Department:text,Count:number,Total Salary:currency
+Engineering,2,"=SUM('Employee Data'!C2:C3)"
+Marketing,0,0
+Total,=SUM(B2:B3),=SUM(C2:C3)
 ```
 
-Metadata, charts, and full RCSV features unlock rich data visualization and documentation capabilities.
+Sheets, charts, and full RCSV features unlock rich data visualization and documentation capabilities.
 
 ### Migration Strategy
 
@@ -314,6 +324,7 @@ one,,three      # Missing value between commas
 Both cases result in the middle cell being stored as a `null` value. This ensures consistent behavior regardless of how empty data is represented in the source CSV file.
 
 **Key behaviors:**
+
 - Empty strings (`""`) and missing values (`,`) are both converted to `null` during parsing
 - `null` values are not counted by COUNTA function
 - `null` values are treated as 0 in mathematical operations
