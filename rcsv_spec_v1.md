@@ -200,7 +200,7 @@ Feb,18000,27000,=B3+C3
 ## Comment Hierarchy
 
 - `#` - Major structural elements (sheets, document metadata)
-- `##` - Sheet-level metadata (charts, tables, column formatting, etc.)
+- `##` - Sheet-level metadata (charts, tables, etc.)
 
 ## Data Types
 
@@ -557,40 +557,69 @@ RCSV v1.0 supports column-level formatting only. Row-level and cell-level format
 
 ### Column-Level Formatting
 
-Column formatting can be specified with or without explicit data types:
+Column formatting is specified directly in column headers using a colon-separated syntax. **Explicit datatypes are required when using any formatting properties** to avoid parsing ambiguity:
 
 ```csv
-## Columns: Item:left, Price:right, Status:center
-Item,Price,Status
-Widget A,2.50,Active
-Widget B,1.75,Pending
+ColumnName:datatype:style1:style2:style3
 ```
 
-Or with explicit types:
+**Column formatting examples:**
 
 ```csv
-## Columns: Item:text:left, Price:currency:right, Status:text:center
-Item,Price,Status
-Widget A,2.50,Active
-Widget B,1.75,Pending
+Product:text:text-left,Price:currency:text-right:bold,Status:category:text-center:bg-green:text-white
+Widget A,29.99,Active
+Widget B,19.99,Pending
 ```
 
-When types are omitted, the parser applies type inference to the data while preserving the specified formatting.
+**Without formatting (type inference works):**
 
-### Supported Style Properties
+```csv
+Product,Price,Status
+Widget A,29.99,Active
+Widget B,19.99,Pending
+```
 
-- `color=red|green|blue|yellow|orange|purple|gray|black|white`
-- `bold=true|false`
-- `italic=true|false`
-- `align=left|center|right`
+**Mixed approach (some columns with formatting, others without):**
+
+```csv
+Product,Price:currency:text-right:bold,Status
+Widget A,29.99,Active
+Widget B,19.99,Pending
+```
+
+### Supported Formatting Properties
+
+RCSV uses CSS-style naming conventions for formatting properties, but these are predefined RCSV formatting options, not arbitrary CSS. Future versions may expand this list.
+
+**Text Alignment:**
+- `text-left`, `text-center`, `text-right`
+
+**Colors:**
+- `text-{color}` (text-red, text-green, text-blue, etc.)
+- `bg-{color}` (bg-red, bg-green, bg-blue, etc.)
+- `bg-{color}-{intensity}` (bg-yellow-100, bg-gray-200, etc.)
+
+**Typography:**
+- `bold`, `italic`, `underline`
+
+**Future Properties:**
+- `border`, `border-t`, `border-b`, etc. (planned for future versions)
 
 ### Column Formatting Examples
 
 ```csv
-## Columns: Product:text:left, Revenue:currency:right:bold, Status:text:center:color=green
-Product,Revenue,Status
+Product:text:text-left:bold,Revenue:currency:text-right:text-green,Status:category:text-center:bg-gray-100
 Widget A,125000,Active
-Widget B,98000,Active
+Widget B,98000,Pending
+Widget C,87500,Inactive
+```
+
+**Multiple style combinations:**
+
+```csv
+Name:text:text-left:bold:italic,Score:number:text-right:bg-blue:text-white,Grade:text:text-center:underline
+John Doe,95.5,A+
+Jane Smith,87.2,B+
 ```
 
 ## Charts
@@ -730,7 +759,7 @@ Month,Amount
 ```csv
 # Sheet: Sales Data
 ## Chart: type=bar, title="Monthly Sales", x=Month, y=Sales
-## Columns: Product:text, Revenue:currency:right, Growth:percentage:center
+Product:text,Revenue:currency:text-right,Growth:percentage:text-center
 Product,Revenue,Growth
 ```
 
@@ -839,7 +868,7 @@ Widget B,Version #2.1 released
 Use double colons to escape when specifying formatting:
 
 ```csv
-## Columns: Time::Stamp:date:left, Value:number:right
+Time::Stamp:date:text-left,Value:number:text-right
 Time:Stamp,Value
 2024-01-15,100
 ```
