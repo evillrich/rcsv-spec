@@ -202,11 +202,11 @@ Charts provide visual representation of data.
 
 ## TabularView name=sales-table dataset=Sales columns=Month,Revenue,Growth sort=Revenue:desc
 
-### Column: Month align=left width=120
+### Column: name=Month align=left width=120
 
-### Column: Revenue format=currency precision=0 align=right
+### Column: name=Revenue format=currency precision=0 align=right
 
-### Column: Growth format=percentage precision=1 align=center color=green
+### Column: name=Growth format=percentage precision=1 align=center color=green
 
 
 ## Chart name=trends-chart type=line dataset=Sales x=Month y=Revenue,Growth title="Revenue & Growth Trends"
@@ -489,9 +489,9 @@ Displays data in table format with extensive formatting options:
 ```text
 # View: Overview
 ## TabularView name=customer-details dataset=Customers columns=Name,Status,MRR sort=MRR:desc filter=Status=="Active"
-### Column: Name align=left width=220 color=blue
-### Column: Status align=center color=red bold=true
-### Column: MRR format=currency precision=0 align=right
+### Column: name=Name align=left width=220 color=blue
+### Column: name=Status align=center color=red bold=true
+### Column: name=MRR format=currency precision=0 align=right
 ```
 
 **TabularView Options:**
@@ -505,7 +505,7 @@ Displays data in table format with extensive formatting options:
 
 **Column Formatting:**
 
-Individual columns can be configured using `### Column: Name` declarations with key=value properties:
+Individual columns can be configured using `### Column: name=ColumnName` declarations with key=value properties:
 
 * `align` - Text alignment (`left`, `center`, `right`)
 * `width` - Column width in pixels
@@ -523,10 +523,10 @@ Column configuration can be placed inline or in the body for readability:
 
 ```text
 # Inline configuration
-### Column: Revenue format=currency precision=0 align=right color=green bold=true
+### Column: name=Revenue format=currency precision=0 align=right color=green bold=true
 
 # Body configuration  
-### Column: Revenue
+### Column: name=Revenue
 format=currency
 precision=0
 align=right
@@ -1136,15 +1136,15 @@ Total,"=SUM(B2:B6)","=SUM(C2:C6)","=SUM(D2:D6)",
 
 ## TabularView name=budget-table dataset=Budget
 
-### Column: Category align=left width=140
+### Column: name=Category align=left width=140
 
-### Column: Budgeted format=currency align=right
+### Column: name=Budgeted format=currency align=right
 
-### Column: Actual format=currency align=right
+### Column: name=Actual format=currency align=right
 
-### Column: Difference format=currency align=right color=green
+### Column: name=Difference format=currency align=right color=green
 
-### Column: Status align=center color=red bold=true
+### Column: name=Status align=center color=red bold=true
 
 
 # View: Analysis
@@ -1205,15 +1205,15 @@ West,90000,95000,100000,105000
 
 ## TabularView name=targets-table dataset=Targets
 
-### Column: Region align=left width=100
+### Column: name=Region align=left width=100
 
-### Column: Q1 format=currency align=right
+### Column: name=Q1 format=currency align=right
 
-### Column: Q2 format=currency align=right
+### Column: name=Q2 format=currency align=right
 
-### Column: Q3 format=currency align=right
+### Column: name=Q3 format=currency align=right
 
-### Column: Q4 format=currency align=right
+### Column: name=Q4 format=currency align=right
 
 
 # View: Regional Analysis
@@ -1269,17 +1269,17 @@ Charlie,40,0.75
 
 ## TabularView dataset=Tasks filter=Status!="Done" sort=Priority:desc,DueDate:asc
 
-### Column: Task align=left width=200
+### Column: name=Task align=left width=200
 
-### Column: Assignee align=left width=100
+### Column: name=Assignee align=left width=100
 
-### Column: Status align=center color=blue bold=true
+### Column: name=Status align=center color=blue bold=true
 
-### Column: Priority align=center color=red bold=true  
+### Column: name=Priority align=center color=red bold=true  
 
-### Column: DueDate format=date align=center
+### Column: name=DueDate format=date align=center
 
-### Column: Effort align=right suffix=" hrs"
+### Column: name=Effort align=right suffix=" hrs"
 
 
 # View: Analytics
@@ -1315,12 +1315,12 @@ Value-based and rule-based formatting for dynamic visual styling:
 
 # Simple value-based conditional formatting
 
-### Column: Status colors=Active:green,Paused:yellow,Churned:red
+### Column: name=Status colors=Active:green,Paused:yellow,Churned:red
 
 
 # Complex multi-rule conditional formatting
 
-### Column: Revenue
+### Column: name=Revenue
 
 #### Condition: condition=">1000" color=green background=lightgreen
 
